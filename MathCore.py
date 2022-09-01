@@ -2,7 +2,7 @@ import math
 
 from settings import WIDTH_X_AXIC_PX
 
-class GraphMath:
+class MathCore:
 	"""Some math action for graphic of functions"""
 
 	def __init__(self, func_polynomials=None, sequence=None, start_x=0, mode='func'):
@@ -108,8 +108,8 @@ class GraphMath:
 
 
 # TESTS
-def test_empty_GraphMath():
-	m = GraphMath()
+def test_empty_MathCore():
+	m = MathCore()
 	last_x = m.get_last_x()
 
 	test1 = m.func_polynomials == None and m.sequence == None and m.start_x == 0
@@ -120,8 +120,8 @@ def test_empty_GraphMath():
 	print(result)
 
 
-def test_change_mode_GraphMath():
-	m = GraphMath([(1, 1), (2, 0.5), (24, 0)])
+def test_change_mode_MathCore():
+	m = MathCore([(1, 1), (2, 0.5), (24, 0)])
 
 	test1 = isinstance(m.func_polynomials, list) and m.sequence == None and m.mode == 'func' and m.get_point_list_by_seq() == None
 	
@@ -138,5 +138,5 @@ def test_change_mode_GraphMath():
 
 
 if __name__ == '__main__':
-	#test_empty_GraphMath()
-	test_change_mode_GraphMath()
+	#test_empty_MathCore()
+	test_change_mode_MathCore()

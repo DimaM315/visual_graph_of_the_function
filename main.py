@@ -3,7 +3,7 @@ import sys
 
 
 from controllers import ConponenstsController
-from GraphMath import GraphMath
+from MathCore import MathCore
 
 from settings import * 
 
@@ -22,7 +22,7 @@ screen = pygame.display.set_mode(size)
 
 
 # app components
-math_engine = GraphMath(func_polynomials=[(3, 0.5)], mode='seq')
+math_engine = MathCore(func_polynomials=[(3, 0.5)], mode='seq')
 math_engine.sequence = math_engine.sequence_divisor_counter()
 
 page_controller = ConponenstsController(screen, components_fonts, 

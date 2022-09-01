@@ -22,45 +22,11 @@ def get_axic_values(division_value_px):
 	return values_list
 
 
-def draw_axes(sc, font_axes, font_axes_chair_v):
-	antialias = 4
-	serif_h = font_axes.render('|', antialias, RED)
-	serif_v = font_axes_chair_v.render('_', antialias, RED)
-
-	# draw serif
-	for i in range(4):
-		sc.blit(serif_h, (125 + i * DIVISION_VALUE_PX, HEITGHT_Y_AXIC_PX+TOP_PADDING_1))
-		if i == 3: # dont make a vertical serif
-			continue
-		sc.blit(serif_v, (LEFT_PADDING_1, 235 - i * DIVISION_VALUE_PX))
-	
-	simbol_axic_name_y = font_axes.render('y', antialias, RED)
-	sc.blit(simbol_axic_name_y, (LEFT_PADDING_1, TOP_PADDING_1))
-
-	# axic x
-	axic_x_values = get_axic_values(DIVISION_VALUE)
-	for i, value in enumerate(axic_x_values):
-		
-		value_sprite = font_axes.render(value, antialias, RED)
-		if value == '0':
-			sc.blit(value_sprite, (LEFT_PADDING_1, HEITGHT_Y_AXIC_PX+TOP_PADDING_1+X_VALUES_TOP_PADDING))
-			continue 
-		sc.blit(value_sprite, (
-					LEFT_PADDING_1 + i * DIVISION_VALUE_PX - 25, 
-					HEITGHT_Y_AXIC_PX + TOP_PADDING_1 + X_VALUES_TOP_PADDING)
-		)
-	
-	simbol_axic_name_x = font_axes.render('x', antialias, RED)
-	sc.blit(simbol_axic_name_x, (
-				WIDTH_X_AXIC_PX + LEFT_PADDING_1,
-				HEITGHT_Y_AXIC_PX + TOP_PADDING_1)
-	)
-	
-
-def function_transfor(func_str:str):
+def function_transform(func_str:str):
 	# func_str kind of "x^3 + 4x^2 - 2x + 10"
 	# return list will be [(a1, b1), (a2, b2)] a - coeff of polynomic, b - degree of x
-	assert len(func_str) > 0 , "most short func_str is only x"
+	if len(func_str) == 0:
+		raise ValueError("most short func_str is x")
 
 	func_str = func_str.lower().replace(' ', '')
 	polynomic_list = []
@@ -77,11 +43,50 @@ def function_transfor(func_str:str):
 	else:
 		func_parts.append(tmp_parts)
 
-	print(func_parts)
-		
+	for part in func_parts:
+		if 'x' not in part:
+			if part == '0' or part == '+0' or part == '-0':
+				continue
+			k, d = int(part), 0
+		elif 'x' in part and '^' not in part:
+			# just '-kx' one degree
+			k, d = part.replace('x', ''), 1
+		elif 'x' in part and '^' in part:
+			# -kx^d
+			k, d = part.split('x^')
+		else:
+			# with the correct shape of the function, the program will not reach this place
+			raise ValueError('Uncorrect function shape')
 
+		if k == '-':
+			k = '-1'
+		elif k == '+' or k == '':
+			k = '1'
+		polynomic_list.append((float(k), float(d)))
+
+	return polynomic_list
+
+
+def allowed_chars(event_unicode:str)->str:
+	# restrict the user in the ability to use other characters except:
+	# x 0-9 ^ + - .
+	allowed_chars_list = ['x', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '^', '+', '-', '.']
+	if event_unicode not in allowed_chars_list:
+		print("we dont type any char except: 0-9 x + - ^ .")
+		return ''
+	return event_unicode
 
 
 if __name__ == '__main__':
-	#print(get_axic_values(1000))
-	function_transfor("-x^3 + 4x^2 - 2x - 10")
+	print(get_axic_values(1000))
+	function_transform("-x^3 + 4x^2 - 2x - 10")
+	function_transform("+x^5 - 6610")
+	function_transform("-x^2")
+	function_transform("+x^2")
+	function_transform("-33x^3+1x+0")
+	function_transform("x+0")
+	function_transform("+0-0")
+	function_transform("1")
+	function_transform("x^0.5")
+	print(function_transform("0.5x^2"))
+	

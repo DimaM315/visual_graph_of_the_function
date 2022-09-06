@@ -40,7 +40,7 @@ class GraphFieldController:
 				self.axes_boundaries['y_top'] < y < self.axes_boundaries['y_bottom'])
 
 
-class ConponenstsController:
+class CompnsController:
 	# Initialize and maintain other components: axic, inputboxes, text.
 	# In other words, the class controls any entity except for the field
 
@@ -55,13 +55,12 @@ class ConponenstsController:
 
 		self.field_controller = GraphFieldController(self.sc)
 
-		self.input_function_box = InputBox(100, HEIGHT-60, 140, 32, pg_font=self.fonts['inputbox'], placeholder=INPUT_FUNC_PLCH)
+		self.input_function_box = InputBox(
+					100, HEIGHT-60, 140, 32, pg_font=self.fonts['inputbox'], plch=INP_FUNC_PLCH)
 		self.input_division_value_x = InputBox(
-					100, HEIGHT-100, 140, 32, pg_font=self.fonts['inputbox'], 
-					placeholder=INPUT_DIVISION_VALUE_X_PLCH)
+					100, HEIGHT-100, 140, 32, pg_font=self.fonts['inputbox'], plch=INP_DIV_X_PLCH)
 		self.input_division_value_y = InputBox(
-					100, HEIGHT-140, 140, 32, pg_font=self.fonts['inputbox'], 
-					placeholder=INPUT_DIVISION_VALUE_Y_PLCH)
+					100, HEIGHT-140, 140, 32, pg_font=self.fonts['inputbox'], plch=INP_DIV_Y_PLCH)
 
 
 	def draw_axes(self):
@@ -118,7 +117,7 @@ class ConponenstsController:
 		self.input_division_value_y.draw(self.sc)
 
 
-	def render_components(self):
+	def render_compns(self):
 		self.update_inputboxes()
 		self.draw_inputboxes()
 
@@ -141,7 +140,7 @@ class ConponenstsController:
 
 	def get_func_polynomials(self):
 		# remove the placeholder "f(x)="
-		func_body = self.input_function_box.text[len(INPUT_FUNC_PLCH):]
+		func_body = self.input_function_box.text[len(INP_FUNC_PLCH):]
 		func_polynomials = function_transform(func_body)
 		return func_polynomials
 
@@ -149,21 +148,21 @@ class ConponenstsController:
 	def get_new_increasing(self, axic):
 		try:
 			if axic == 'x':
-				return int(self.input_division_value_x.text[len(INPUT_DIVISION_VALUE_X_PLCH):])
+				return int(self.input_division_value_x.text[len(INP_DIV_X_PLCH):])
 			elif axic == 'y':
-				return int(self.input_division_value_y.text[len(INPUT_DIVISION_VALUE_Y_PLCH):])
+				return int(self.input_division_value_y.text[len(INP_DIV_Y_PLCH):])
 		except ValueError as e:
 			print('Uncorrect new increasing')
 			return self.increasing_px_y if axic == 'y' else self.increasing_px_x
 		
 
-	def function_inputbox_is_active(self):
+	def func_inp_is_active(self):
 		return self.input_function_box.active
 
-	def input_division_value_x_is_active(self):
+	def inp_div_x_is_active(self):
 		return self.input_division_value_x.active
 
-	def input_division_value_y_is_active(self):
+	def inp_div_y_is_active(self):
 		return self.input_division_value_y.active
 
 
@@ -172,12 +171,12 @@ class InputBox:
 	# processes the entered value. Deletes the previously entered values
 	# when pressing backspace, but doesn`t touch the placeholder
 
-    def __init__(self, x, y, w, h, pg_font, placeholder):
+    def __init__(self, x, y, w, h, pg_font, plch):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = GRAY
-        self.text = placeholder
+        self.text = plch
         
-        self.placeholder = placeholder
+        self.plch = plch
         
         self.pg_font = pg_font
         self.txt_surface = self.pg_font.render(self.text, True, self.color)
@@ -201,10 +200,10 @@ class InputBox:
             if self.active:
                 if event.key == pygame.K_RETURN:
                     print('Entered: ' + self.text)
-                    self.text = self.placeholder
+                    self.text = self.plch
                     self.active = False
                     self.color = GREEN if self.active else GRAY
-                elif event.key == pygame.K_BACKSPACE and len(self.text) > len(self.placeholder):
+                elif event.key == pygame.K_BACKSPACE and len(self.text) > len(self.plch):
                     self.text = self.text[:-1]
                 else:
                     if len(self.text) <  self.limited_chars:

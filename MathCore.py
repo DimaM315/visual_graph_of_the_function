@@ -2,10 +2,14 @@ import math
 
 from settings import WIDTH_X_AXIC_PX
 
-class MathCore:
-	"""Some math action for graphic of functions"""
 
-	def __init__(self, func_polynomials=None, sequence=None, start_x=0, mode='func'):
+class MathCore:
+	"""
+		Some math action for graphic of functions.
+		When the mode is "seq" don`t allow to change increasing_px
+	"""
+
+	def __init__(self, func_polynomials=None, start_x=0, mode='func'):
 		# divisition value each px of field
 		self.increasing_px_x = 1
 		self.increasing_px_y = 1
@@ -16,7 +20,7 @@ class MathCore:
 		# current function on graph with shape: [(k1, d1), (10, 0)]
 		self.func_polynomials = func_polynomials
 		# current sequence of number with shape [n1, n2, n3]
-		self.sequence = sequence
+		self.sequence = self.sequence_divisor_counter() if mode == 'seq' else None
 
 
 	def get_last_x(self)->int:
@@ -98,13 +102,11 @@ class MathCore:
 
 
 	def __setattr__(self, attrname, value):
-		if attrname == 'increasing_px_x' and self.__dict__.get('mode', 1) == 'seq':
-			if self.increasing_px_x != value:
-				print('increasing_px_x has been changed, please update the sequence')
-		elif attrname == 'increasing_px_y' and self.__dict__.get('mode', 1) == 'seq':
-			if self.increasing_px_y != value:
-				print('increasing_px_y has been changed, please update the sequence')
-		self.__dict__[attrname] = value
+		# Constraint for change the increasing_px while mode is 'seq'
+		if attrname in ['increasing_px_x', 'increasing_px_y'] and self.__dict__.get('mode', 1) == 'seq':
+			print('Graph have mode is "seq", if you want to change increasing, firstly you should define mode "func"')
+		else:
+			self.__dict__[attrname] = value
 
 
 # TESTS

@@ -25,6 +25,6 @@ WIDTH_X_AXIC_PX = 450
 
 
 # placeholders for input components
-INPUT_FUNC_PLCH = "f(x)="
-INPUT_DIVISION_VALUE_X_PLCH = "X div value: "
-INPUT_DIVISION_VALUE_Y_PLCH = "Y div value: "
+INP_FUNC_PLCH = "f(x)="
+INP_DIV_X_PLCH = "X div value: "
+INP_DIV_Y_PLCH = "Y div value: "

@@ -12,11 +12,6 @@ class GraphFieldController:
 		self.zero_point_coords = (LEFT_PADDING_2+LEFT_PADDING_1, HEITGHT_Y_AXIC_PX+TOP_PADDING_1-1) 
 		self.size_point = 1
 
-		# field boundaries in pg`s coords
-		self.axes_boundaries = {
-					'x_left': LEFT_PADDING_2, 'x_right':LEFT_PADDING_2+WIDTH_X_AXIC_PX,
-					'y_top': TOP_PADDING_1, 'y_bottom': TOP_PADDING_1+HEITGHT_Y_AXIC_PX}
-
 		self.sc = screen
 
 
@@ -29,15 +24,8 @@ class GraphFieldController:
 		for x, y in points_list:
 			normal_x = self.zero_point_coords[0] + x
 			normal_y = self.zero_point_coords[1] - y
-			if self.is_point_of_field(normal_x, normal_y):
-				pygame.draw.rect(self.sc, BLACK, (normal_x, normal_y, self.size_point, self.size_point))
+			pygame.draw.rect(self.sc, BLACK, (normal_x, normal_y, self.size_point, self.size_point))
 
-
-
-	def is_point_of_field(self, x, y):
-		# check point`s coords
-		return (self.axes_boundaries['x_left'] < x < self.axes_boundaries['x_right'] and 
-				self.axes_boundaries['y_top'] < y < self.axes_boundaries['y_bottom'])
 
 
 class CompnsController:
@@ -164,6 +152,7 @@ class CompnsController:
 
 	def inp_div_y_is_active(self):
 		return self.input_division_value_y.active
+
 
 
 class InputBox:

@@ -1,4 +1,5 @@
 import math
+import random
 
 from settings import WIDTH_X_AXIC_PX
 
@@ -11,16 +12,19 @@ class MathCore:
 
 	def __init__(self, func_polynomials=None, start_x=0, mode='func'):
 		# divisition value each px of field
-		self.increasing_px_x = 1
-		self.increasing_px_y = 1
+		self.increasing_px_x = 5
+		self.increasing_px_y = 5
 		
 		self.mode = mode
-		self.start_x = start_x		
+		self.start_x = start_x	
 
 		# current function on graph with shape: [(k1, d1), (10, 0)]
 		self.func_polynomials = func_polynomials
+	
 		# current sequence of number with shape [n1, n2, n3]
-		self.sequence = self.sequence_divisor_counter() if mode == 'seq' else None
+		self.sequence = self.sequence_test() if mode == 'seq' else None
+		self.tmp_sequence = 'sequence_test'
+		self.point_list = None
 
 
 	def get_last_x(self)->int:
@@ -38,6 +42,7 @@ class MathCore:
 		return point_list
 
 
+
 	def function_handler(self)->list:
 		# the sequence is given by the function
 		# shape of function have be: [(a,d1), (b,d2), (c,d3)] each tuple is just coeff of each polynomial and his deree. 
@@ -53,8 +58,12 @@ class MathCore:
 			x_value = x * self.increasing_px_x 
 
 			for pol_coeff, pol_degree in self.func_polynomials:
-				y += pol_coeff * (x_value ** pol_degree)
-				y = y // self.increasing_px_y
+				if pol_degree > 100:
+					# the plug is against OverflowError
+					y = 1000000
+				else:
+					y += int(pol_coeff * (x_value ** pol_degree))
+					y = y // self.increasing_px_y
 			seq_points.append((x, y))
 
 		return seq_points
@@ -64,27 +73,59 @@ class MathCore:
 		# берем чисело из натуральной последовательности, и считаем сколько числе меньше него с 
 		# наибольшим общим делителем равным 1
 		# 1, 2, ... last_x
-		seq = [1, 2]
+		seq = [(1, 1), (2, 2)]
 		for n in range(3, self.get_last_x()):
 			gcd_counter = 1
 			for i in range(1, n):
 				if math.gcd(i, n) == 1:
 					gcd_counter += 1
-			seq.append(gcd_counter)
+			element = (n, gcd_counter)
+			seq.append(element)
 		return seq
 
 
 	def sequence_divisor_counter(self)->list:
 		# последовательность из кол-ва делителей чисел из натуральной последовательности
 		# 1, 2, ... WIDTH_X_AXIC_PX
-		seq = [1, 2]
+		seq = [(1, 1), (2, 2)]
 		for n in range(3, self.get_last_x()):
 			divisor_counter = 2
 			for i in range(2, n//2+1):
 				if n % i == 0:
 					divisor_counter += 1
-			seq.append(divisor_counter)
+			element = (n, divisor_counter)
+			seq.append(element)
 		return seq
+
+
+	def sequence_rand_numbers(self)->list:
+		seq = []
+		last_x = self.get_last_x()
+		for n in range(1, last_x):
+			element = (n, random.randint(0, last_x))
+			seq.append(element)
+		return seq
+
+
+	def increasing_decreasing_func(self)->list:
+		seq = []
+		for x in range(1, self.get_last_x()):
+			numerator = 2*((x + 1)**2) + 0.5*((x-32)**3)
+			denominator =  (x - 22)
+			if denominator != 0:
+				y = numerator / denominator
+			element = (x, y)
+			seq.append(element)
+		return seq
+
+
+	def sequence_test(self)->list:
+		seq = []
+		for x in range(1, self.get_last_x()):
+			y = 9*(x // 100 + 10) 
+			element = (x, y)
+			seq.append(element)
+		return seq 
 
 
 	def get_point_list_by_seq(self)->list:
@@ -93,20 +134,27 @@ class MathCore:
 		if self.mode != 'seq' or self.sequence is None:
 			return None
 
+		# update the sequence
+		if self.tmp_sequence == 'gcd_counter':
+			self.sequence = self.sequence_gcd_counter()
+			print(self.sequence[-1])
+		elif self.tmp_sequence == 'sequence_divisor_counter':
+			self.sequence = self.sequence_divisor_counter()
+		elif self.tmp_sequence == 'sequence_test':
+			self.sequence = self.sequence_test()
+		elif self.tmp_sequence == 'increasing_decreasing_func':
+			self.sequence = self.increasing_decreasing_func()
+
 		point_list = []
 		for i, value in enumerate(self.sequence):
-			x = i + 1 
-			y = value
-			point_list.append((x, y))
+			if i % self.increasing_px_x == 0:
+				x = i // self.increasing_px_x
+				y = value[1] // self.increasing_px_y
+				point_list.append((x, y))
 		return point_list
 
+		
 
-	def __setattr__(self, attrname, value):
-		# Constraint for change the increasing_px while mode is 'seq'
-		if attrname in ['increasing_px_x', 'increasing_px_y'] and self.__dict__.get('mode', 1) == 'seq':
-			print('Graph have mode is "seq", if you want to change increasing, firstly you should define mode "func"')
-		else:
-			self.__dict__[attrname] = value
 
 
 # TESTS

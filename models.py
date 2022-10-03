@@ -1,20 +1,21 @@
 from settings import *
 
 
-def get_axic_values(division_value_px):
+def get_axic_values(division_value:int)->list:
 	# shape of value : n * 10^k , with the exception of zero
-	assert type(division_value_px) == int, "division_value_px must be integer"
-	assert division_value_px >= 100 and division_value_px <= 1000, "division_value_px shouldn`t be so biggest"
-	assert division_value_px % 100 == 0 , "division_value_px err, let's you enter a number a multiple of 100" 
+	assert type(division_value) == int, "division_value must be integer"
+	if division_value < 100 or division_value > 1000:
+		raise ValueError("division_value shouldn`t be so biggest")
+	assert division_value % 100 == 0 , "division_value err, let's you enter a number a multiple of 100" 
 
 	values_list = ["0"]
 
 	degree_of_10 = 0
-	while division_value_px >= 10:
-		division_value_px = division_value_px / 10
+	while division_value >= 10:
+		division_value = division_value / 10
 		degree_of_10 += 1
 
-	coeff = int(division_value_px)
+	coeff = int(division_value)
 
 	for i in range(1, 5):
 		values_list.append("{0}*10^{1}".format(coeff * i, degree_of_10))
@@ -78,7 +79,6 @@ def allowed_chars(event_unicode:str)->str:
 
 
 if __name__ == '__main__':
-	print(get_axic_values(1000))
 	function_transform("-x^3 + 4x^2 - 2x - 10")
 	function_transform("+x^5 - 6610")
 	function_transform("-x^2")

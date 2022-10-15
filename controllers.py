@@ -44,11 +44,13 @@ class CompnsController:
 		self.field_controller = GraphFieldController(self.sc)
 
 		self.input_function_box = InputBox(
-					100, HEIGHT-60, 140, 32, pg_font=self.fonts['inputbox'], plch=INP_FUNC_PLCH)
+					100, HEIGHT-60, 140, 32, pg_font=self.fonts['inputbox_func'], plch=INP_FUNC_PLCH)
 		self.input_division_value_x = InputBox(
 					100, HEIGHT-100, 140, 32, pg_font=self.fonts['inputbox'], plch=INP_DIV_X_PLCH)
 		self.input_division_value_y = InputBox(
 					100, HEIGHT-140, 140, 32, pg_font=self.fonts['inputbox'], plch=INP_DIV_Y_PLCH)
+		self.btn_snapshoter = Button(
+					370, HEIGHT-140, 74, 32, pg_font=self.fonts['btn'], plch=INP_SNAP_PLCH)
 
 
 	def draw_axes(self):
@@ -105,9 +107,14 @@ class CompnsController:
 		self.input_division_value_y.draw(self.sc)
 
 
+	def draw_btns(self):
+		self.btn_snapshoter.draw(self.sc)
+
+
 	def render_compns(self):
 		self.update_inputboxes()
 		self.draw_inputboxes()
+		self.draw_btns()
 
 		self.draw_axes()
 		self.field_controller.draw_field()
@@ -124,6 +131,7 @@ class CompnsController:
 		self.input_function_box.handle_event(event)
 		self.input_division_value_x.handle_event(event)
 		self.input_division_value_y.handle_event(event)
+		self.btn_snapshoter.handle_event(event)
 
 
 	def get_func_polynomials(self):
@@ -172,7 +180,7 @@ class InputBox:
         self.active = False
 
         # Maximum number of characters for self.text
-        self.limited_chars = 16 
+        self.limited_chars = 20 
 
 
     def handle_event(self, event):
@@ -211,3 +219,43 @@ class InputBox:
         # Blit the text and the rect 
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
         pygame.draw.rect(screen, self.color, self.rect, 2)
+
+
+
+class Button:
+    def __init__(self, x, y, w, h, pg_font, plch):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.text = plch
+        
+        self.plch = plch
+        self.blick = False
+        
+        self.pg_font = pg_font
+        self.txt_surface = self.pg_font.render(self.text, True, WHITE)
+
+
+    def on_the_element(self, event):
+        # Check event - click on the button
+        return self.rect.collidepoint(event.pos)	          
+
+
+    def draw(self, screen):
+        # Blit the text and the rect 
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+10))
+        if self.blick:
+        	pygame.draw.rect(screen, GREEN, self.rect, 2)
+        else:
+        	pygame.draw.rect(screen, BLUE, self.rect, 2)
+
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            if self.on_the_element(event):
+                #print("Mouse moved")
+                pass
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if self.on_the_element(event):
+            	self.blick = False
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if self.on_the_element(event):
+                self.blick = False

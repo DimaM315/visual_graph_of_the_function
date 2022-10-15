@@ -1,6 +1,6 @@
-import math
-import random
+from mathCore.Sequenses import Sequenses
 
+from models import get_y_by_x
 from settings import WIDTH_X_AXIC_PX
 
 
@@ -8,6 +8,10 @@ class MathCore:
 	"""
 		Some math action for graphic of functions.
 		When the mode is "seq" don`t allow to change increasing_px
+
+		:func_polynomials - current function for graph. It have two list,
+		first list is numerator, second is denominator. For calculate num_secuense 
+		results these lists are multiple.
 	"""
 
 	def __init__(self, func_polynomials=None, start_x=0, mode='func'):
@@ -18,12 +22,12 @@ class MathCore:
 		self.mode = mode
 		self.start_x = start_x	
 
-		# current function on graph with shape: [(k1, d1), (10, 0)]
+		#  with shape: [ [(k1, d1), (10, 0)], [((k1, d1), (10, 0))] ]
 		self.func_polynomials = func_polynomials
 	
 		# current sequence of number with shape [n1, n2, n3]
-		self.sequence = self.sequence_test() if mode == 'seq' else None
-		self.tmp_sequence = 'sequence_test'
+		self.sequence = Sequenses.sequence_rand_numbers(self.get_last_x()) if mode == 'seq' else None
+		self.tmp_sequence = 'sequence_rand_numbers'
 		self.point_list = None
 
 
@@ -42,7 +46,6 @@ class MathCore:
 		return point_list
 
 
-
 	def function_handler(self)->list:
 		# the sequence is given by the function
 		# shape of function have be: [(a,d1), (b,d2), (c,d3)] each tuple is just coeff of each polynomial and his deree. 
@@ -53,79 +56,11 @@ class MathCore:
 			return None
 
 		for x in range(1, WIDTH_X_AXIC_PX):
-			y = 0
 			# "x" var should be as coords of x
-			x_value = x * self.increasing_px_x 
+			y = int(get_y_by_x(x*self.increasing_px_x, self.func_polynomials) / self.increasing_px_y)
 
-			for pol_coeff, pol_degree in self.func_polynomials:
-				if pol_degree > 100:
-					# the plug is against OverflowError
-					y = 1000000
-				else:
-					y += int(pol_coeff * (x_value ** pol_degree))
-					y = y // self.increasing_px_y
 			seq_points.append((x, y))
-
 		return seq_points
-
-
-	def sequence_gcd_counter(self)->list:
-		# берем чисело из натуральной последовательности, и считаем сколько числе меньше него с 
-		# наибольшим общим делителем равным 1
-		# 1, 2, ... last_x
-		seq = [(1, 1), (2, 2)]
-		for n in range(3, self.get_last_x()):
-			gcd_counter = 1
-			for i in range(1, n):
-				if math.gcd(i, n) == 1:
-					gcd_counter += 1
-			element = (n, gcd_counter)
-			seq.append(element)
-		return seq
-
-
-	def sequence_divisor_counter(self)->list:
-		# последовательность из кол-ва делителей чисел из натуральной последовательности
-		# 1, 2, ... WIDTH_X_AXIC_PX
-		seq = [(1, 1), (2, 2)]
-		for n in range(3, self.get_last_x()):
-			divisor_counter = 2
-			for i in range(2, n//2+1):
-				if n % i == 0:
-					divisor_counter += 1
-			element = (n, divisor_counter)
-			seq.append(element)
-		return seq
-
-
-	def sequence_rand_numbers(self)->list:
-		seq = []
-		last_x = self.get_last_x()
-		for n in range(1, last_x):
-			element = (n, random.randint(0, last_x))
-			seq.append(element)
-		return seq
-
-
-	def increasing_decreasing_func(self)->list:
-		seq = []
-		for x in range(1, self.get_last_x()):
-			numerator = 2*((x + 1)**2) + 0.5*((x-32)**3)
-			denominator =  (x - 22)
-			if denominator != 0:
-				y = numerator / denominator
-			element = (x, y)
-			seq.append(element)
-		return seq
-
-
-	def sequence_test(self)->list:
-		seq = []
-		for x in range(1, self.get_last_x()):
-			y = 9*(x // 100 + 10) 
-			element = (x, y)
-			seq.append(element)
-		return seq 
 
 
 	def get_point_list_by_seq(self)->list:
@@ -135,15 +70,7 @@ class MathCore:
 			return None
 
 		# update the sequence
-		if self.tmp_sequence == 'gcd_counter':
-			self.sequence = self.sequence_gcd_counter()
-			print(self.sequence[-1])
-		elif self.tmp_sequence == 'sequence_divisor_counter':
-			self.sequence = self.sequence_divisor_counter()
-		elif self.tmp_sequence == 'sequence_test':
-			self.sequence = self.sequence_test()
-		elif self.tmp_sequence == 'increasing_decreasing_func':
-			self.sequence = self.increasing_decreasing_func()
+		self.sequence = Sequenses.get_sequens_by_name(self.tmp_sequence, self.get_last_x())
 
 		point_list = []
 		for i, value in enumerate(self.sequence):
@@ -176,17 +103,36 @@ def test_change_mode_MathCore():
 	test1 = isinstance(m.func_polynomials, list) and m.sequence == None and m.mode == 'func' and m.get_point_list_by_seq() == None
 	
 	m.mode = 'seq'
-	test_sequence = [1,2,3,4,5,6]
+	m.increasing_px_x = 1
+	test_sequence = [(0,1), (0,2), (0,3), (0,4), (0,5), (0,6)]
 	m.sequence = test_sequence
+	m.tmp_sequence = "none"
 	point_list_by_seq = m.get_point_list_by_seq()
 
 	test2 = m.function_handler() == None and isinstance(point_list_by_seq, list) and len(test_sequence) == len(point_list_by_seq)
+
 	test3 = m.get_point_list() == point_list_by_seq
 
-	result = all([test1, test2, test3])
+	m.mode = 'func'
+	point_list = m.get_point_list()
+	test4 = True
+	for i in range(len(point_list)-1):
+		if point_list[i][0] != i + 1:
+			test4 = False
+
+	result = all([test1, test2, test3, test4])
 	print(result)
 
 
 if __name__ == '__main__':
 	#test_empty_MathCore()
-	test_change_mode_MathCore()
+	#test_change_mode_MathCore()
+	
+	func_polynomials = [
+		[(2,2), (3,0)],
+		[]
+	]
+
+	m = MathCore(func_polynomials)
+	print(m.mode, m.func_polynomials)
+	#print(m.get_point_list())

@@ -6,8 +6,9 @@ from settings import WIDTH_X_AXIC_PX
 
 class MathCore:
 	"""
-		Some math action for graphic of functions.
-		When the mode is "seq" don`t allow to change increasing_px
+		The mathCore component uses the concept of representing a given function 
+		f(x) as a list of members(polynom) of the form (k,d). Each member of the functional 
+		expression is k*(x^d).
 
 		:func_polynomials - current function for graph. It have two list,
 		first list is numerator, second is denominator. For calculate num_secuense 

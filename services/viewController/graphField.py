@@ -24,6 +24,10 @@ class GraphFieldController:
 		pygame.draw.rect(self.sc, WHITE, (LEFT_PADDING_1 + LEFT_PADDING_2, TOP_PADDING_1, WIDTH_X_AXIC_PX, HEITGHT_Y_AXIC_PX))
 
 
+	def draw_field_grid(self):
+		print("Нарисовать сетку поля")
+
+
 	def draw_points_list(self, points_list:list):
 		# drawing computed massive of math point
 

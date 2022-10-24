@@ -30,6 +30,7 @@ INP_DIV_X_PLCH = "X div value: "
 INP_DIV_Y_PLCH = "Y div value: "
 BTN_SNAP_PLCH = "Snapshot!"
 BTN_ADD_OVERLAY_PLCH = "Add by overlay?"
+BTN_ADD_GRID_PLCH = "Field grid"
 
 
 ALLOWED_CHARS_LIST = ['x', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '^', '+', '-', '.', '(', ')', '/']

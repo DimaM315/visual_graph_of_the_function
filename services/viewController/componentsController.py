@@ -32,29 +32,31 @@ class ComponentsController:
 					370, HEIGHT-140, 74, 32, pg_font=self.fonts['btn'], plch=BTN_SNAP_PLCH)
 		self.btn_add_overlay = Button(
 					370, HEIGHT-60, 109, 32, pg_font=self.fonts['btn'], plch=BTN_ADD_OVERLAY_PLCH)
+		self.btn_add_grid = Button(
+					370, HEIGHT-100, 90, 32, pg_font=self.fonts['btn'], plch=BTN_ADD_GRID_PLCH)
 
 
-	def draw_inputboxes(self):
+	def __draw_inputboxes(self):
 		self.input_function_box.draw(self.sc)
 		self.input_division_value_x.draw(self.sc)
 		self.input_division_value_y.draw(self.sc)
 
 
-	def draw_btns(self):
+	def __draw_btns(self):
 		self.btn_snapshoter.draw(self.sc)
 		self.btn_add_overlay.draw(self.sc)
+		self.btn_add_grid.draw(self.sc)
 
 
 	def render_compns(self):
-		self.update_inputboxes()
-		self.draw_inputboxes()
-		self.draw_btns()
-
+		self.__update_inputboxes()
+		self.__draw_inputboxes()
+		self.__draw_btns()
 		self.field_controller.draw_axes(self.increasing_px_y, self.increasing_px_x)
 		self.field_controller.draw_field()
 
 
-	def update_inputboxes(self):
+	def __update_inputboxes(self):
 		self.input_function_box.update()
 		self.input_division_value_x.update()
 		self.input_division_value_y.update()

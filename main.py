@@ -47,6 +47,9 @@ def app(math_core):
 				elif page_controller.btn_add_overlay.on_the_element(event):
 					page_controller.btn_add_overlay.change_active()
 					print("Add overlay change status")
+				elif page_controller.btn_add_grid.on_the_element(event):
+					page_controller.field_controller.draw_field_grid()
+					page_controller.btn_add_grid.change_active()
 			elif event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_RETURN:
 					if page_controller.func_inp_is_active():
@@ -71,7 +74,7 @@ def app(math_core):
 						math_core.increasing_px_y = new_increasing_y
 						page_controller.increasing_px_y = new_increasing_y
 						math_core.point_list = math_core.get_point_list()
-
+						
 			page_controller.handle_event(event)
 			
 		page_controller.render_compns()

@@ -28,7 +28,8 @@ WIDTH_X_AXIC_PX = 450
 INP_FUNC_PLCH = "f(x)="
 INP_DIV_X_PLCH = "X div value: "
 INP_DIV_Y_PLCH = "Y div value: "
-INP_SNAP_PLCH = "Snapshot!"
+BTN_SNAP_PLCH = "Snapshot!"
+BTN_ADD_OVERLAY_PLCH = "Add by overlay?"
 
 
 ALLOWED_CHARS_LIST = ['x', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '^', '+', '-', '.', '(', ')', '/']

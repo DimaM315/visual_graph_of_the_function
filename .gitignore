@@ -1,3 +1,4 @@
 .env
 profile_test/
 snapshots/
+logs/

@@ -1,7 +1,7 @@
 import time
 
 
-from MathCore import MathCore
+from services.mathCore import MathCore
 from models import get_axic_values
 
 def test_empty_MathCore():

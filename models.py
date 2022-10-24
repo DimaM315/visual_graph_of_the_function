@@ -1,7 +1,9 @@
+from typing import List, Tuple
+
 from settings import *
 
 
-def get_axic_values(division_value:int)->list:
+def get_axic_values(division_value:int)->List[str]:
 	# shape of value : n * 10^k , with the exception of zero
 	assert type(division_value) == int, "division_value must be integer"
 	if division_value < 100 or division_value > 1000:
@@ -23,7 +25,7 @@ def get_axic_values(division_value:int)->list:
 	return values_list
 
 
-def function_transform(func_str:str)->list:
+def function_transform(func_str:str)->List[Tuple[float, float]]:
 	# func_str kind of "x^3 + 4x^2 - 2x + 10"
 	# return list will be [(a1, b1), (a2, b2)] a - coeff of polynomic, b - degree of x
 	if len(func_str) == 0:
@@ -39,38 +41,12 @@ def function_transform(func_str:str)->list:
 		polynomsDenominator = []
 
 	return [
-			[str_poly_to_arr_poly(poly) for poly in polynomsNumerator], 
-			[str_poly_to_arr_poly(poly) for poly in polynomsDenominator]
+			[str_poly_to_tuple_poly(poly) for poly in polynomsNumerator], 
+			[str_poly_to_tuple_poly(poly) for poly in polynomsDenominator]
 		]
 
 
-
-def allowed_chars(event_unicode:str)->str:
-	# restrict the user in the ability to use other characters except:
-	# x 0-9 ^ + - .
-	if event_unicode not in ALLOWED_CHARS_LIST:
-		print("we dont type any char except: 0-9 x + - ^ . () /")
-		return ''
-	return event_unicode
-
-
-def get_y_by_x(x:int, func_polynomials:list)->float:
-	y_numerator = sum([k*(x**d) for k, d in func_polynomials[0]])
-	y_denominator = sum([k*(x**d) for k, d in func_polynomials[1]])
-
-	if len(func_polynomials[1]) == 0:
-		# Denominator dont exist
-		return y_numerator
-	elif y_denominator == 0:
-		# Denominator is exist and equal 0. In the case y=infinite
-		return 10**6
-
-	# Always round up to the 2nd digit before dot
-	y = int((y_numerator/y_denominator)*100)/100
-	return y
-
-
-def str_poly_to_arr_poly(str_poly:str)->list:
+def str_poly_to_tuple_poly(str_poly:str)->Tuple[float, float]:
 	# :strPoly - is one polynomial like k*x^d with type str.
 	# return -> [k, d]
 	"""
@@ -79,12 +55,15 @@ def str_poly_to_arr_poly(str_poly:str)->list:
 		strPolyToArrPoly("-8x^33") --> [-8, 33]
 		strPolyToArrPoly("-8x^-33") --> [-8, -33]
 	"""
-	if str_poly == "":
-		raise ValueError("Empty str_poly in str_poly_to_arr_poly")
+	if str_poly == "": # unexpected value of str_poly
+		raise ValueError("Empty str_poly in str_poly_to_tuple_poly")
 	if str_poly == "x":
-		return (1, 1)
-	
-	if "^" in str_poly:
+		return (1.0, 1.0)
+	if str_poly == "-x":
+		return (-1.0, 1.0)
+
+	if "^" in str_poly: 
+		# str_poly have shape: kx^d
 		k = str_poly.split("x^")[0]
 		d = str_poly.split("x^")[1]
 		if k == "":
@@ -92,26 +71,29 @@ def str_poly_to_arr_poly(str_poly:str)->list:
 		elif k == "-":
 			k = "-1"
 		return (float(k), float(d))
-	elif "x" in str_poly:
+	elif "x" in str_poly: 
+		# str_poly have shape: kx
 		return (float(str_poly.split("x")[0]), 1)
 	else:
-		return (float(str_poly), 0)
+		# str_poly have shape: k
+		return (float(str_poly), 0) 
 
 	
-def splitting_into_separete_polynimoals(funcComponents:str)->list:
+def splitting_into_separete_polynimoals(funcComponents:str)->List[str]:
 	# Разбиваем числитель или знаменатель(funcComponents) на куски(Полиномы:str):list
 	# :funcComponents - преведён к нормальному виду. Обрезаны все пробелы, символы с маленькой буквы и т.п.
 	polynoms = []
 	if funcComponents == "":
 		raise ValueError("Empty funcComponents in splitting_into_separete_polynimoals")
 
-	raw_store_polynoms = funcComponents.split("-")
+	raw_store_polynoms = funcComponents.split("-") # funcComponents have shape: k1x^d1-k2x^d2+k3x^d3...
 
-	if raw_store_polynoms[0] == "":
-		raw_store_polynoms[1] = "-" + raw_store_polynoms[1]
+	if raw_store_polynoms[0] == "": # if funcComponents had started with "-"
+		raw_store_polynoms[1] = "-" + raw_store_polynoms[1] # Then ceil in index 1 should start with "-"
+		# delete empty ceil in index 0
 		raw_store_polynoms = raw_store_polynoms[1:]
 
-	if "^-" in funcComponents:
+	if "^-" in funcComponents: # funcComponents had "^-" negotive degree.
 		for i in range(len(raw_store_polynoms)):
 			if raw_store_polynoms[i][-1] == "^":
 				raw_store_polynoms[i] = raw_store_polynoms[i] + "-" + raw_store_polynoms[i+1]
@@ -119,13 +101,13 @@ def splitting_into_separete_polynimoals(funcComponents:str)->list:
 			if i == len(raw_store_polynoms)-1:
 				break
 
-	if len(raw_store_polynoms) == 1:
-		if "+" in raw_store_polynoms[0]:
+	if len(raw_store_polynoms) == 1: # funcComponents had only one sing "-", just spliting by "+"
+		if "+" in raw_store_polynoms[0]: # funcComponents had else "+" in himself.
 			raw_store_polynoms = raw_store_polynoms[0].split("+")
 		return raw_store_polynoms
 
+	# funcComponents had more one sing "-"
 	raw_store_polynoms = [raw_store_polynoms[0]] + ["-" + comp for comp in raw_store_polynoms[1:]]
-	
 	for comp in raw_store_polynoms:
 		if "+" in comp:
 			for poly in comp.split("+"):
@@ -134,6 +116,15 @@ def splitting_into_separete_polynimoals(funcComponents:str)->list:
 			polynoms.append(comp)
 
 	return polynoms
+
+
+def check_correct_func_polynom(func_body:str)->bool:
+	if '/' in func_body:
+		if func_body.endswith('/') or func_body.startswith('/'):
+			return False
+	return True
+
+
 
 
 
@@ -160,9 +151,13 @@ def test_function_transform():
 	test12 = function_transform("(x-3)/(x^2+3x)") == [[(1, 1), (-3, 0)], [(1, 2), (3, 1)]]
 	test13 = function_transform("(2x^2 +x-3)/(x^2+3x)") == [[(2, 2), (1, 1), (-3, 0)], [(1, 2), (3, 1)]]
 
-	results = [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11]
-	results_with_bracket = [test12]
-	print(str(results.count(True)+results_with_bracket.count(True)) + "/" + str(len(results)+len(results_with_bracket)))
+	test14 = function_transform("-x") == [[(-1, 1)],[]]
+
+	results = [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11,test12, test13, test14]
+	print(str(results.count(True)) + "/" + str(len(results)))
+
+	if False in results:
+		print(results.index(False))
 
 
 def test_get_y_by_x():
@@ -184,22 +179,23 @@ def test_get_y_by_x():
 	print(result)
 
 
-def test_str_poly_to_arr_poly():
-	test1 = str_poly_to_arr_poly("2x") == (2, 1)
+def test_str_poly_to_tuple_poly():
+	test1 = str_poly_to_tuple_poly("2x") == (2, 1)
 	
 	try:
-		str_poly_to_arr_poly("")
+		str_poly_to_tuple_poly("")
 	except ValueError as e:
 		test2 = True
 	
-	test3 = str_poly_to_arr_poly("-8x^33") == (-8, 33)
-	test4 = str_poly_to_arr_poly("-8x^-33") == (-8, -33)
-	test5 = str_poly_to_arr_poly("44") == (44, 0)
-	test6 = str_poly_to_arr_poly("x") == (1, 1)
-	test7 = str_poly_to_arr_poly("-1000") == (-1000, 0)
-	test8 = str_poly_to_arr_poly("-x^-1") == (-1, -1)
+	test3 = str_poly_to_tuple_poly("-8x^33") == (-8, 33)
+	test4 = str_poly_to_tuple_poly("-8x^-33") == (-8, -33)
+	test5 = str_poly_to_tuple_poly("44") == (44, 0)
+	test6 = str_poly_to_tuple_poly("x") == (1, 1)
+	test7 = str_poly_to_tuple_poly("-1000") == (-1000, 0)
+	test8 = str_poly_to_tuple_poly("-x^-1") == (-1, -1)
 
-	print(all([test1, test2, test3, test4, test5, test6, test7,test8]))
+	result = [test1, test2, test3, test4, test5, test6, test7,test8]
+	print(str(result.count(True)) + "/" + str(len(result)))
 
 
 def test_splitting_into_separete_polynimoals():
@@ -230,7 +226,9 @@ def test_splitting_into_separete_polynimoals():
 
 
 if __name__ == '__main__':
-	func = "(x^2+10+x^-1)/(x^3+10)"
-	func_poly = function_transform(func)
-	y_10 = get_y_by_x(10, poly)
-	print(y_10)
+	test_function_transform()
+	test_str_poly_to_tuple_poly()
+	#func = "(x^2+10+x^-1)/(x^3+10)"
+	#func_poly = function_transform(func)
+	#y_10 = get_y_by_x(10, poly)
+	#print(y_10)

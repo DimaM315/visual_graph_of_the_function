@@ -1,8 +1,10 @@
-from mathCore.Sequenses import Sequenses
+from loguru import logger
+from typing import List, Tuple
 
-from models import get_y_by_x
+from services.mathCore.Sequenses import Sequenses
 from settings import WIDTH_X_AXIC_PX
 
+logger.add("logs/error.log", format="{time} | {level} | {message}", level="ERROR", compression="zip", rotation="50 KB")
 
 class MathCore:
 	"""
@@ -15,7 +17,9 @@ class MathCore:
 		results these lists are multiple.
 	"""
 
-	def __init__(self, func_polynomials=None, start_x=0, mode='func'):
+	def __init__(self, 
+				func_polynomials:List[Tuple[float, float]]=None, 
+				start_x:int=0, mode:str='func'):
 		# divisition value each px of field
 		self.increasing_px_x = 5
 		self.increasing_px_y = 5
@@ -27,27 +31,29 @@ class MathCore:
 		self.func_polynomials = func_polynomials
 	
 		# current sequence of number with shape [n1, n2, n3]
-		self.sequence = Sequenses.sequence_rand_numbers(self.get_last_x()) if mode == 'seq' else None
+		self.sequence = Sequenses.sequence_rand_numbers(self.__get_last_x()) if mode == 'seq' else None
 		self.tmp_sequence = 'sequence_rand_numbers'
-		self.point_list = None
+		self.point_list = self.get_point_list()
 
 
-	def get_last_x(self)->int:
-		return self.increasing_px_x * WIDTH_X_AXIC_PX
-
-
-	def get_point_list(self)->list:
-		point_list = None
+	def get_point_list(self)->List[Tuple[int]]:
 		if self.mode == 'func' and self.func_polynomials is not None:
-			point_list = self.function_handler()
+			point_list = self.__get_point_list_by_func()
 		elif self.mode == 'seq' and self.sequence is not None:
-			point_list = self.get_point_list_by_seq()
+			point_list = self.__get_point_list_by_seq()
 		else:
-			print('Maybe you forgot change mode in GraphMath')
+			logger.error("Undefind mode!")
 		return point_list
 
 
-	def function_handler(self)->list:
+	def set_func_polynomials(self, new_func_poly:List[Tuple[float, float]]):
+		if len(new_func_poly) == 0 or len(new_func_poly) > 2:
+			logger.error("Given unexpected new_func_poly in set_func_polynomials")
+		else:
+			self.func_polynomials = new_func_poly
+			
+
+	def __get_point_list_by_func(self)->List[Tuple[int]]:
 		# the sequence is given by the function
 		# shape of function have be: [(a,d1), (b,d2), (c,d3)] each tuple is just coeff of each polynomial and his deree. 
 		# a - polinomial in zero deree, b - pol. in one deree etc. 
@@ -58,20 +64,20 @@ class MathCore:
 
 		for x in range(1, WIDTH_X_AXIC_PX):
 			# "x" var should be as coords of x
-			y = int(get_y_by_x(x*self.increasing_px_x, self.func_polynomials) / self.increasing_px_y)
+			y = int(self.__get_y_by_x(x*self.increasing_px_x, self.func_polynomials) / self.increasing_px_y)
 
 			seq_points.append((x, y))
 		return seq_points
 
 
-	def get_point_list_by_seq(self)->list:
+	def __get_point_list_by_seq(self)->List[Tuple[int]]:
 		# make the sequence point list, where x = number element of list, y = value element of list
 		# :with_start_point - add (0;0) point or not
 		if self.mode != 'seq' or self.sequence is None:
 			return None
 
 		# update the sequence
-		self.sequence = Sequenses.get_sequens_by_name(self.tmp_sequence, self.get_last_x())
+		self.sequence = Sequenses.get_sequens_by_name(self.tmp_sequence, self.__get_last_x())
 
 		point_list = []
 		for i, value in enumerate(self.sequence):
@@ -80,6 +86,26 @@ class MathCore:
 				y = value[1] // self.increasing_px_y
 				point_list.append((x, y))
 		return point_list
+
+	
+	def __get_y_by_x(self, x:int, func_polynomials:list)->float:
+		y_numerator = sum([k*(x**d) for k, d in func_polynomials[0]])
+		y_denominator = sum([k*(x**d) for k, d in func_polynomials[1]])
+
+		if len(func_polynomials[1]) == 0:
+			# Denominator dont exist
+			return y_numerator
+		elif y_denominator == 0:
+			# Denominator is exist and equal 0. In the case y=infinite
+			return 10**6
+
+		# Always round up to the 2nd digit before dot
+		y = int((y_numerator/y_denominator)*100)/100
+		return y
+
+
+	def __get_last_x(self)->int:
+		return self.increasing_px_x * WIDTH_X_AXIC_PX
 
 		
 
@@ -91,7 +117,7 @@ def test_empty_MathCore():
 	last_x = m.get_last_x()
 
 	test1 = m.func_polynomials == None and m.sequence == None and m.start_x == 0
-	test2 = m.function_handler() == None
+	test2 = m.get_point_list_by_func() == None
 	test3 = m.get_point_list() == None
 
 	result = all([test1, test2, test3])
@@ -110,7 +136,7 @@ def test_change_mode_MathCore():
 	m.tmp_sequence = "none"
 	point_list_by_seq = m.get_point_list_by_seq()
 
-	test2 = m.function_handler() == None and isinstance(point_list_by_seq, list) and len(test_sequence) == len(point_list_by_seq)
+	test2 = m.get_point_list_by_func() == None and isinstance(point_list_by_seq, list) and len(test_sequence) == len(point_list_by_seq)
 
 	test3 = m.get_point_list() == point_list_by_seq
 
@@ -126,8 +152,8 @@ def test_change_mode_MathCore():
 
 
 if __name__ == '__main__':
-	#test_empty_MathCore()
-	#test_change_mode_MathCore()
+	test_empty_MathCore()
+	test_change_mode_MathCore()
 	
 	func_polynomials = [
 		[(2,2), (3,0)],

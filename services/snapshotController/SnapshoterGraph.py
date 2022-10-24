@@ -1,7 +1,11 @@
 import png
 import os
+from loguru import logger 
 
 from settings import SNAPSHOTS_DIR, SNAPSHOT_FILE_NAME
+
+
+logger.add("logs/info.log", format="{time} | {level} | {message}", level="INFO", compression="zip", rotation="50 KB")
 
 
 class SnapshoterGraph:
@@ -51,7 +55,7 @@ class SnapshoterGraph:
 			with open(file_path, 'wb') as f: 
 				w = png.Writer(width, height, greyscale=False)
 				w.write(f, store_of_pixels_value)
-		print("A photo has just been taken with mode - black_white and path: "+file_path)
+		logger.info("A photo has just been taken with mode - black_white and path: "+file_path)
 		self.snapshot_name_suffix += 1 # We change it for further snapshot on current session
 
 

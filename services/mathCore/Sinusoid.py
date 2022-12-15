@@ -19,7 +19,6 @@ class Sinusoid:
 		for x in range(x0, x_last):
 			y = self.__ampl * math.sin(self.__phase * x)
 			coords.append(Coords(x=x, y=int(y + offset)))
-		
 		return coords
 
 	def set_ampl(self, new_ampl:int):

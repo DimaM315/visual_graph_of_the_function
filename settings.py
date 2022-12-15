@@ -44,3 +44,5 @@ DIGIT_CHARS_LIST = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-']
 
 SNAPSHOTS_DIR = "./snapshots"
 SNAPSHOT_FILE_NAME = "snap"
+SNAPSHOTS_WIDTH = 450
+SNAPSHOTS_HEIGHT = 450

@@ -3,6 +3,7 @@ from typing import List, Tuple
 
 from services.mathCore.Sequenses import Sequenses
 from services.mathCore.Sinusoid import Sinusoid
+from services.mathCore.Func import Func
 from settings import WIDTH_X_AXIC_PX
 from entity_types import GraphTypes, Coords, CanvasPoint, Polynom, FunctionRepr
 
@@ -21,24 +22,25 @@ class MathCore:
 		results these lists are multiple.
 	"""
 
-	def __init__(self, func:FunctionRepr=None, start_x:int=0, 
+	def __init__(self, func:FunctionRepr=FunctionRepr([], []), 
 				mode:GraphTypes=GraphTypes.FUNC, sin_ampl:int=25, sin_phase_kf=32):
 		# divisition value each px of field
 		self.increasing_px_x = 5
 		self.increasing_px_y = 5
 		
 		self.mode = mode
-		self.start_x = start_x	
 
-		self.__tmp_func = func
 		self.tmp_sequence = 'increasing_decreasing_func'
+
 		self.sinusoid_inst = Sinusoid(ampl=sin_ampl, phase_kf=sin_phase_kf)
+		self.func_inst = Func(func=func)
+		
 
 		self.coords_list:List[Coords] = self.get_coords_list()
 
 
 	def get_coords_list(self)->List[Coords]:
-		if self.mode == GraphTypes.FUNC and self.__tmp_func is not None:
+		if self.mode == GraphTypes.FUNC:
 			coords_list = self.__get_coords_list_by_func()
 		elif self.mode == GraphTypes.SEQUENCE:
 			coords_list = self.__get_coords_list_by_seq()
@@ -54,7 +56,7 @@ class MathCore:
 		if len(new_func) == 0 or len(new_func) > 2:
 			logger.error("Given unexpected new_func in set_tmp_func")
 		else:
-			self.__tmp_func = new_func
+			self.func_inst.set_funcRepr(new_func)
 
 
 	def set_sinusoid_params(self, phase_kf:int=None, new_ampl:int=None):
@@ -67,28 +69,20 @@ class MathCore:
 	def __get_coords_list_by_func(self)->List[Coords]:
 		# the sequence is given by the function
 		# shape of function have be: [(a,d1), (b,d2), (c,d3)] each tuple is just coeff of each polynomial and his deree. 
-		# a - polinomial in zero deree, b - pol. in one deree etc. 
-		coords_list = []
-
-		for x in range(1, WIDTH_X_AXIC_PX):
-			# "x" var should be as coords of x
-			y = int(self.__get_y_by_x(x*self.increasing_px_x, self.__tmp_func) / self.increasing_px_y)
-
-			coords_list.append(Coords(x=x, y=y))
-		return coords_list
+		# a - polinomial in zero deree, b - pol. in one deree etc. 	
+		coords_list = self.func_inst.get_coords_by(x0=1, x_last=self.__get_last_x())
+		return self.__coords_increasing(coords_list)
 
 
 	def __get_coords_list_by_seq(self)->List[Coords]:
 		# make the sequence coords list, where x = number element of list, y = value element of list
 		# :with_start_coords - add (0;0) coords or not
-
-		# update the sequence
 		coords_list = Sequenses.get_sequens_by_name(self.tmp_sequence, self.__get_last_x())
 		return self.__coords_increasing(coords_list)
 
 	
 	def __get_coords_list_by_amplitude(self)->List[Coords]:
-		coords_list = self.sinusoid_inst.get_coords_by(x0=0, x_last=self.__get_last_x())
+		coords_list = self.sinusoid_inst.get_coords_by(x0=1, x_last=self.__get_last_x())
 		return self.__coords_increasing(coords_list)
 
 
@@ -98,24 +92,8 @@ class MathCore:
 			if coord.x % self.increasing_px_x == 0:
 				x = coord.x // self.increasing_px_x
 				y = coord.y // self.increasing_px_y
-				coords_increasing_list.append(Coords(x=x, y=y))
+				coords_increasing_list.append(Coords(x=x, y=int(y)))
 		return coords_increasing_list
-
-
-	def __get_y_by_x(self, x:int, func:FunctionRepr)->float:
-		y_numerator = sum([kf*(x**dg) for kf, dg in func.numerator])
-		y_denominator = sum([kf*(x**dg) for kf, dg in func.denominator])
-
-		if len(func.denominator) == 0:
-			# Denominator dont exist
-			return y_numerator
-		elif y_denominator == 0:
-			# Denominator is exist and equal 0. In the case y=infinite
-			return 10**6
-
-		# Always round up to the 2nd digit before dot
-		y = int((y_numerator/y_denominator)*100)/100
-		return y
 
 
 	def __get_last_x(self)->int:

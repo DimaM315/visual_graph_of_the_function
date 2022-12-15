@@ -43,7 +43,6 @@ def app(math_core):
 				# click on
 				if page_controller.btn_snapshoter.on_the_element(event):
 					snapshoter.create_black_white_snapshot(math_core.coords_list)
-				
 				elif page_controller.btn_add_overlay.on_the_element(event):
 					page_controller.btn_add_overlay.change_active()
 				

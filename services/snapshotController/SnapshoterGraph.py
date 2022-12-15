@@ -4,7 +4,7 @@ from loguru import logger
 from typing import List
 
 from entity_types import Coords
-from settings import SNAPSHOTS_DIR, SNAPSHOT_FILE_NAME
+from settings import SNAPSHOTS_DIR, SNAPSHOT_FILE_NAME, SNAPSHOTS_WIDTH, SNAPSHOTS_HEIGHT
 
 
 logger.add("logs/info.log", format="{time} | {level} | {message}", level="INFO", compression="zip", rotation="50 KB")
@@ -29,13 +29,12 @@ class SnapshoterGraph:
 
 	def __point_list_to_shema(self, point_list:List[Coords])->List[str]:
 		# In this method we will create shema for black_white mode create_png.
-		
-		width = len(point_list)
-		higth = width
+		width = SNAPSHOTS_WIDTH
+		higth = SNAPSHOTS_HEIGHT
 
 		shema = ['1'*width]*higth
 
-		for x,y in point_list:
+		for x, y in point_list:
 			if x < 0 or y < 0:
 				continue
 			if y < higth:
@@ -43,7 +42,7 @@ class SnapshoterGraph:
 		return shema
 
 
-	def __create_png(self, store_of_pixels_value:list, mode:str="black_white"):
+	def __create_png(self, store_of_pixels_value:List[List[int]], mode:str="black_white"):
 		height = len(store_of_pixels_value)
 		file_path = SNAPSHOTS_DIR + "/" + SNAPSHOT_FILE_NAME + str(self.snapshot_name_suffix) + ".png"
 
@@ -64,6 +63,8 @@ class SnapshoterGraph:
 	def __get_snapshot_name_suffix(self)->int:
 		# Create uniqe suffix for each file.png
 		return len(os.listdir(SNAPSHOTS_DIR))
+
+
 
 
 

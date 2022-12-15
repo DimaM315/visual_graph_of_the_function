@@ -13,6 +13,7 @@ WHITE = (255, 255, 255)
 # window params
 HEIGHT = 600
 WIDTH = 600
+WINDOW_SIZE = (HEIGHT, WIDTH)
 
 
 # to control the location of groups elements
@@ -28,12 +29,17 @@ WIDTH_X_AXIC_PX = 450
 INP_FUNC_PLCH = "f(x)="
 INP_DIV_X_PLCH = "X div value: "
 INP_DIV_Y_PLCH = "Y div value: "
+INP_PHASE_PLCH = "phase kf: "
+INP_AMPL_PLCH = "ampl: "
+
 BTN_SNAP_PLCH = "Snapshot!"
 BTN_ADD_OVERLAY_PLCH = "Add by overlay?"
 BTN_ADD_GRID_PLCH = "Field grid"
+BTN_SET_SIN_PLCH = "Set Sinusoid"
 
 
 ALLOWED_CHARS_LIST = ['x', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '^', '+', '-', '.', '(', ')', '/']
+DIGIT_CHARS_LIST = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-']
 
 
 SNAPSHOTS_DIR = "./snapshots"

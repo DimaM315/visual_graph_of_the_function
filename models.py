@@ -1,6 +1,8 @@
 from typing import List, Tuple
+import re
 
 from settings import *
+from entity_types import Polynom, FunctionRepr
 
 
 def get_axic_values(division_value:int)->List[str]:
@@ -25,7 +27,7 @@ def get_axic_values(division_value:int)->List[str]:
 	return values_list
 
 
-def function_transform(func_str:str)->List[Tuple[float, float]]:
+def function_transform(func_str:str)->FunctionRepr:
 	# func_str kind of "x^3 + 4x^2 - 2x + 10"
 	# return list will be [(a1, b1), (a2, b2)] a - coeff of polynomic, b - degree of x
 	if len(func_str) == 0:
@@ -40,13 +42,13 @@ def function_transform(func_str:str)->List[Tuple[float, float]]:
 		polynomsNumerator = splitting_into_separete_polynimoals(func_str)
 		polynomsDenominator = []
 
-	return [
-			[str_poly_to_tuple_poly(poly) for poly in polynomsNumerator], 
-			[str_poly_to_tuple_poly(poly) for poly in polynomsDenominator]
-		]
+	return FunctionRepr(
+			numerator=[str_poly_to_tuple_poly(poly) for poly in polynomsNumerator], 
+			denominator=[str_poly_to_tuple_poly(poly) for poly in polynomsDenominator]
+		)
 
 
-def str_poly_to_tuple_poly(str_poly:str)->Tuple[float, float]:
+def str_poly_to_tuple_poly(str_poly:str)->Polynom:
 	# :strPoly - is one polynomial like k*x^d with type str.
 	# return -> [k, d]
 	"""
@@ -58,9 +60,9 @@ def str_poly_to_tuple_poly(str_poly:str)->Tuple[float, float]:
 	if str_poly == "": # unexpected value of str_poly
 		raise ValueError("Empty str_poly in str_poly_to_tuple_poly")
 	if str_poly == "x":
-		return (1.0, 1.0)
+		return Polynom(kf=1.0, dg=1.0)
 	if str_poly == "-x":
-		return (-1.0, 1.0)
+		return Polynom(kf=-1.0, dg=1.0)
 
 	if "^" in str_poly: 
 		# str_poly have shape: kx^d
@@ -70,13 +72,13 @@ def str_poly_to_tuple_poly(str_poly:str)->Tuple[float, float]:
 			k = "1"
 		elif k == "-":
 			k = "-1"
-		return (float(k), float(d))
+		return Polynom(kf=float(k), dg=float(d))
 	elif "x" in str_poly: 
 		# str_poly have shape: kx
-		return (float(str_poly.split("x")[0]), 1)
+		return Polynom(kf=float(str_poly.split("x")[0]), dg=1)
 	else:
 		# str_poly have shape: k
-		return (float(str_poly), 0) 
+		return Polynom(kf=float(str_poly), dg=0) 
 
 	
 def splitting_into_separete_polynimoals(funcComponents:str)->List[str]:
@@ -226,8 +228,9 @@ def test_splitting_into_separete_polynimoals():
 
 
 if __name__ == '__main__':
-	test_function_transform()
-	test_str_poly_to_tuple_poly()
+	test_splitting_into_separete_polynimoals()
+	#test_function_transform()
+	#test_str_poly_to_tuple_poly()
 	#func = "(x^2+10+x^-1)/(x^3+10)"
 	#func_poly = function_transform(func)
 	#y_10 = get_y_by_x(10, poly)

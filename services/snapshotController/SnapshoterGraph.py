@@ -1,7 +1,9 @@
 import png
 import os
 from loguru import logger 
+from typing import List
 
+from entity_types import Coords
 from settings import SNAPSHOTS_DIR, SNAPSHOT_FILE_NAME
 
 
@@ -16,7 +18,7 @@ class SnapshoterGraph:
 		self.snapshot_name_suffix = self.__get_snapshot_name_suffix()
 
 
-	def create_black_white_snapshot(self, point_list:list):
+	def create_black_white_snapshot(self, point_list:List[Coords]):
 		# The store_of_pixels_value - black_white value list on besided shema.
 		# Just transform str to list of int.
 		# For a color mode the list would be little difficult
@@ -25,7 +27,7 @@ class SnapshoterGraph:
 		self.__create_png(store_of_pixels_value)
 
 
-	def __point_list_to_shema(self, point_list:list):
+	def __point_list_to_shema(self, point_list:List[Coords])->List[str]:
 		# In this method we will create shema for black_white mode create_png.
 		
 		width = len(point_list)
@@ -59,7 +61,7 @@ class SnapshoterGraph:
 		self.snapshot_name_suffix += 1 # We change it for further snapshot on current session
 
 
-	def __get_snapshot_name_suffix(self):
+	def __get_snapshot_name_suffix(self)->int:
 		# Create uniqe suffix for each file.png
 		return len(os.listdir(SNAPSHOTS_DIR))
 
